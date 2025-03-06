@@ -118,9 +118,8 @@ def create_csv(filtered_audio, filtered_prompts, base):
     df['Speaker'] = df['Audio'].apply(extract_speaker_id)
     df['Session'] = df['Audio'].apply(extract_session_id)
 
-    csv_path = os.path.join(base, "torgo_manifest.csv")
 
-    df.to_csv(csv_path, index=False)
+    df.to_csv('torgo_mainfest.csv', index=False)
 
     
 audio_file_paths, prompt_file_paths = create_paths()
