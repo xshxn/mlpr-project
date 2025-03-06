@@ -67,13 +67,35 @@ def filter_matching_pairs(audio_file_paths, prompts_file_paths):
     filtered_prompts = [prompt_mapping[key] for key in common_keys]
     
     return filtered_audio, filtered_prompts
+
 filtered_audio, filtered_prompts = filter_matching_pairs(audio_file_paths, prompt_file_paths)
+
+def get_speaker_category(file_path):
+    parts = file_path.split(os.sep)
+    try:
+        base_dir_index = parts.index("MLPR Data")
+        speaker = parts[base_dir_index + 1].lower()  
+        
+
+        if speaker.startswith('fc') or speaker.startswith('mc'):
+            return 'control'
+
+        elif (speaker.startswith('f') and not speaker.startswith('fc')) or \
+             (speaker.startswith('m') and not speaker.startswith('mc')):
+            return 'dysarthric'
+        else:
+            return 'unknown'  
+    except (ValueError, IndexError):
+        return 'unknown'
 
 
 
 df = pd.DataFrame({'Audio': filtered_audio, 'Prompts': filtered_prompts})
 
-csv_path = os.path.join(base_dir, "torgo_manifest.csv")
+
+df['Category'] = df['Audio'].apply(get_speaker_category)
+
+csv_path = os.path.join(base_dir, "torgo_manifest1.csv")
 
 df.to_csv(csv_path, index=False)
 
