@@ -109,6 +109,14 @@ def extract_session_id(file_path):
         return session_id
     except (ValueError, IndexError):
         return None
+
+def extract_file_basename(file_path):
+    try:
+        basename = os.path.splitext(os.path.basename(file_path))[0]
+        return basename
+    
+    except (ValueError, IndexError):
+        return None
     
 def create_csv(filtered_audio, filtered_prompts, base):
     df = pd.DataFrame({'Audio': filtered_audio, 'Prompts': filtered_prompts})
@@ -117,6 +125,7 @@ def create_csv(filtered_audio, filtered_prompts, base):
     df['Category'] = df['Audio'].apply(get_speaker_category)
     df['Speaker'] = df['Audio'].apply(extract_speaker_id)
     df['Session'] = df['Audio'].apply(extract_session_id)
+    df['Sequence'] = df['Audio'].apply(extract_file_basename)
 
 
     df.to_csv('torgo_mainfest.csv', index=False)
