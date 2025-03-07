@@ -7,8 +7,25 @@ from tqdm import tqdm
 from scipy import signal
 
 def spectral_subtraction(audio, sr, frame_length = 2048, hop_length = 512, beta = 0.002):
+
+    if len(audio) < frame_length:
+        frame_length = 2**int(np.log2(len(audio) - 1) + 1)
+        if frame_length <256:
+            frame_length = 256
+        hop_length = frame_length//4
+
+
+
     noise_duration = min(0.3, len(audio)/sr/3)
-    noise_sample = audio[:int(sr*noise_duration)]
+    noise_sample_length = int(sr * noise_duration)
+
+    if noise_sample_length < 100:
+        noise_sample_length = len(audio)//4
+
+    noise_sample = audio[:noise_sample_length]
+
+    if len(noise_sample) < frame_length:
+        return audio
 
     noise_spec = np.mean(np.abs(librosa.stft(noise_sample, n_fft=frame_length, 
                                              hop_length=hop_length))**2, axis=1)
@@ -55,7 +72,12 @@ def process_noise_reduction(csv_file, output_dir,
             audio, sr = librosa.load(processed_audio_path, sr=None)
 
             if noise_reduction_method == 'spectral_subtraction':
-                audio_clean = spectral_subtraction(audio, sr)
+                try:
+
+                    audio_clean = spectral_subtraction(audio, sr)
+                except Exception as e:
+                    print(f"Spectral subtraction failed, using wiener filter instead: {e}")
+                    audio_clean = wiener_filter(audio)
             elif noise_reduction_method == 'wiener':
                 audio_clean = wiener_filter(audio)
             else:
