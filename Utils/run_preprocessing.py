@@ -15,11 +15,7 @@ threshold_db = -40
 min_silence_duration = 0.1
 processed_column = "Processed Audio"
 
-noise_reduced_column = "Noise_Reduced_Audio"  
-noise_reduction_method = "spectral_subtraction" 
-
-
-
-process_noise_reduction(csv_file, output_dir, noise_reduction_method=noise_reduction_method, processed_column='Audio', noise_reduced_column=noise_reduced_column)
+noise_reduced_column = "Audio"  
+noise_reduction_method = "wiener" 
 
 process_dataset(csv_file, output_dir, input_column=noise_reduced_column, output_column= processed_column, threshold_db=threshold_db, min_silence_duration=min_silence_duration)

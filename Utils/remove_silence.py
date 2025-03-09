@@ -5,32 +5,26 @@ import soundfile as sf
 import os
 from tqdm import tqdm
 
-def remove_silence(audio, sr, threshold_db=-40, min_silence_duration=0.1):
-
-    threshold_amp = 10**(threshold_db/20) #converting threshold to amp ratio
+def remove_silence(audio, sr, threshold_db=-40, min_silence_duration=0.01):
+    threshold_amp = 10**(threshold_db/20) 
     amplitude = np.abs(audio)
     is_sound = amplitude > threshold_amp
-    min_silence_samples = int(min_silence_duration * sr) #min silence duration to samples
     
 
-    processed_mask = np.copy(is_sound) # array for processed silence mask
+    first_sound_index = np.argmax(is_sound)
     
 
-    silence_starts = np.where(np.logical_and(is_sound[:-1], ~is_sound[1:]))[0] + 1 #segnments shorter than min silence time
-    silence_ends = np.where(np.logical_and(~is_sound[:-1], is_sound[1:]))[0] + 1
+    if first_sound_index == 0 and not is_sound[0]:
+        return audio
     
 
-    if not is_sound[0]: #checking if silence is at the beginning or end of file
-        silence_starts = np.insert(silence_starts, 0, 0)
-    if not is_sound[-1]:
-        silence_ends = np.append(silence_ends, len(is_sound))
-    
+    last_sound_index = len(audio) - np.argmax(np.flip(is_sound)) - 1
 
-    for start, end in zip(silence_starts, silence_ends):
-        if end - start < min_silence_samples:
-            processed_mask[start:end] = True
+    buffer_samples = int(min_silence_duration * sr)
+    start_index = max(0, first_sound_index - buffer_samples)
+    end_index = min(len(audio), last_sound_index + buffer_samples)
 
-    return audio[processed_mask]
+    return audio[start_index:end_index]
 
 def process_dataset(csv_file, output_dir, 
                    input_column='Audio',  
