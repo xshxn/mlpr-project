@@ -1,2 +1,3 @@
-torgo_features.csv
+*.csv
+static/
 __pycache__/
