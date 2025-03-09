@@ -8,7 +8,7 @@ import numpy as np
 samplerate1, data1 = read('static/0147.wav')
 samplerate2, data2 = read('static/no_silence_0147.wav')
 
-
+#idk whats happening to git
 
 duration1 = len(data1)/samplerate1
 duration2 = len(data2)/samplerate2
