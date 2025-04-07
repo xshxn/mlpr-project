@@ -5,7 +5,7 @@ df = pd.read_csv("torgo_mainfest.csv")
 
 gender_counts = df["Speaker"].str.startswith("F").value_counts().rename(index={True: "Female", False: "Male"})
 
-category_counts = df["Category"].value_counts()
+category_counts = df["Speaker"].value_counts()
 
 
 print("Speaker Count:")

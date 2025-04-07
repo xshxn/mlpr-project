@@ -42,7 +42,7 @@ def extract_mfcc(audio_path):
 
 
 tqdm.pandas()
-feature_dictionary= df["Processed Audio"].progress_apply(lambda x: json.dumps(extract_mfcc(x)) if pd.notna(x) else {})
+feature_dictionary = df["Processed Audio"].progress_apply(lambda x: extract_mfcc(x) if pd.notna(x) else {})
 df["MFCCs"] = feature_dictionary.apply(lambda x: x.get("MFCCs"))
 df["Delta_MFCCs"] = feature_dictionary.apply(lambda x: x.get("Delta_MFCCs"))
 df["Delta2_MFCCs"] = feature_dictionary.apply(lambda x: x.get("Delta2_MFCCs"))
