@@ -7,6 +7,12 @@ from tqdm import tqdm
 
 df = pd.read_csv("torgo_mainfest.csv")
 
+def apply_cmvn(mfcc):
+# applying Cepstral Mean and Variance Normalization
+    mean = np.mean(mfcc, axis=1, keepdims=True)
+    std = np.std(mfcc, axis=1, keepdims=True)
+    return (mfcc - mean) / (std + 1e-8)
+
 
 def extract_mfcc(audio_path):
     sr = 16000
@@ -18,6 +24,7 @@ def extract_mfcc(audio_path):
     try:
         y, sr = librosa.load(audio_path, sr = sr)
         mfccs = librosa.feature.mfcc(y = y, sr = sr, n_mfcc=n_mfcc, n_fft = n_fft, hop_length = hop_length)
+        mfccs = apply_cmvn(mfccs)
         delta_mfccs = librosa.feature.delta(mfccs)
         delta2_mfccs = librosa.feature.delta(mfccs, order=2)
         chroma = librosa.feature.chroma_stft(y=y, sr=sr, n_fft=n_fft, hop_length=hop_length)

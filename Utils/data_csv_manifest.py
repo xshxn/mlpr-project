@@ -6,6 +6,7 @@ def create_paths():
     base_dir = r'E:\MLPR Data'
     audio_file_paths = []
     prompt_file_paths = []
+    phoneme_file_paths = []
 
     for speaker_folder in os.listdir(base_dir):
         speaker_path = os.path.join(base_dir, speaker_folder)
@@ -13,12 +14,23 @@ def create_paths():
 
             for session_folder in ["Session1", "Session2", "Session3"]:
                 session_path = os.path.join(speaker_path, session_folder)
-                audio_path = os.path.join(session_path, "wav_arrayMic")
-                if os.path.exists(audio_path):
-                    for root, _, files in os.walk(audio_path):
+                if os.path.exists(os.path.join(session_path, "phn_arrayMic")):
+                    phoneme_dir = os.path.join(session_path, "phn_arrayMic")
+                    audio_dir = os.path.join(session_path, "wav_arrayMic")
+                else:
+                    phoneme_dir = os.path.join(session_path, "phn_headMic")
+                    audio_dir = os.path.join(session_path, "wav_headMic")
+                if os.path.exists(audio_dir):
+                    for root, _, files in os.walk(audio_dir):
                         for file in files:
                             if file.endswith(".wav"):
                                 audio_file_paths.append(os.path.join(root, file))
+                if os.path.exists(phoneme_dir):
+                    for root, _, files in os.walk(phoneme_dir):
+                        for file in files:
+                            if file.endswith(".PHN") or file.endswith(".phn"):
+                                phoneme_file_paths.append(os.path.join(root, file))
+
             
             for session_folder in ["Session1", "Session2", "Session3"]:
                 session_path = os.path.join(speaker_path, session_folder)
@@ -30,11 +42,11 @@ def create_paths():
                             if file.endswith(".txt"):
                                 prompt_file_paths.append(os.path.join(root, file))
 
-    return audio_file_paths, prompt_file_paths
+    return audio_file_paths, prompt_file_paths, phoneme_file_paths
 
 
 
-def filter_matching_pairs(audio_file_paths, prompts_file_paths):
+def filter_matching_pairs(audio_file_paths, prompts_file_paths, phoneme_file_paths):
 
     audio_mapping = {}
     for audio_path in audio_file_paths:
@@ -64,13 +76,27 @@ def filter_matching_pairs(audio_file_paths, prompts_file_paths):
         except (ValueError, IndexError):
             continue
 
-    common_keys = set(audio_mapping.keys()) & set(prompt_mapping.keys())
-    
+    phoneme_mapping = {}
+    for phn_path in phoneme_file_paths:
+        parts = phn_path.split(os.sep)
+        try:
+            base_dir_index = parts.index("MLPR Data")
+            speaker = parts[base_dir_index + 1]
+            session = parts[base_dir_index + 2]
+            basename = os.path.splitext(os.path.basename(phn_path))[0]
+            
+            key = (speaker, session, basename)
+            phoneme_mapping[key] = phn_path
+        except (ValueError, IndexError):
+            continue
+
+    common_keys = set(audio_mapping.keys()) & set(prompt_mapping.keys()) & set(phoneme_mapping.keys())    
 
     filtered_audio = [audio_mapping[key] for key in common_keys]
     filtered_prompts = [prompt_mapping[key] for key in common_keys]
+    filtered_phonemes = [phoneme_mapping[key] for key in common_keys]
     
-    return filtered_audio, filtered_prompts
+    return filtered_audio, filtered_prompts, filtered_phonemes
 
 
 def get_speaker_category(file_path):
@@ -118,8 +144,8 @@ def extract_file_basename(file_path):
     except (ValueError, IndexError):
         return None
     
-def create_csv(filtered_audio, filtered_prompts, base):
-    df = pd.DataFrame({'Audio': filtered_audio, 'Prompts': filtered_prompts})
+def create_csv(filtered_audio, filtered_prompts, filtered_phonemes, base):
+    df = pd.DataFrame({'Audio': filtered_audio, 'Prompts': filtered_prompts, 'Phonemes': filtered_phonemes})
 
 
     df['Category'] = df['Audio'].apply(get_speaker_category)
@@ -131,8 +157,8 @@ def create_csv(filtered_audio, filtered_prompts, base):
     df.to_csv('torgo_mainfest.csv', index=False)
 
     
-audio_file_paths, prompt_file_paths = create_paths()
-filtered_audio, filtered_prompts = filter_matching_pairs(audio_file_paths, prompt_file_paths)
-
+audio_file_paths, prompt_file_paths, phoneme_file_paths = create_paths()
+print(len(phoneme_file_paths))
+filtered_audio, filtered_prompts, filtered_phonemes = filter_matching_pairs(audio_file_paths, prompt_file_paths, phoneme_file_paths)
 
 

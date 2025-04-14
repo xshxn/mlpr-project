@@ -2,12 +2,12 @@ from data_csv_manifest import *
 from remove_silence import *
 from noise_removal import *
 
-audio_file_paths, prompt_file_paths = create_paths()
-filtered_audio, filtered_prompts = filter_matching_pairs(audio_file_paths, prompt_file_paths)
+audio_file_paths, prompt_file_paths, phoneme_file_paths = create_paths()
+filtered_audio, filtered_prompts, filtered_phonemes = filter_matching_pairs(audio_file_paths, prompt_file_paths, phoneme_file_paths)
 
 base_dir = r'E:\MLPR Data'
 
-create_csv(filtered_audio, filtered_prompts, base_dir)
+create_csv(filtered_audio, filtered_prompts, filtered_phonemes, base_dir)
 
 csv_file = "torgo_mainfest.csv"
 output_dir = "E:\Processed_Audio"
