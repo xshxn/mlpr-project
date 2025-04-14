@@ -5,7 +5,7 @@ import torchaudio
 from transformers import Wav2Vec2FeatureExtractor
 from tqdm import tqdm
 
-def extract_features_from_audio(audio_path, extractor):
+def extractAudioFeatures(audio_path, extractor):
     try:
         waveform, sample_rate = torchaudio.load(audio_path)
     except Exception as e:
@@ -25,7 +25,7 @@ def extract_features_from_audio(audio_path, extractor):
         print(f"Error extracting features - {e}")
         return None
     
-def save_and_update_csv(csv_file, output_csv = "torgo_features_paths.csv", output_dir = r"E:\MLPR Data\Features"):
+def saveUpdateCSV(csv_file, output_csv = "torgo_features_paths.csv", output_dir = r"E:\MLPR Data\Features"):
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -62,13 +62,14 @@ def save_and_update_csv(csv_file, output_csv = "torgo_features_paths.csv", outpu
         file_name = f"{speaker}_{session}_{sequence}"
         save_path = os.path.join(output_dir, f"feature_{file_name}.pt")
 
-        features = extract_features_from_audio(audio_path, extractor)
+        features = extractAudioFeatures(audio_path, extractor)
         if features is None:
             print(f"Feature path not saved")
             feature_paths.append(None)
             continue
 
-        torch.save(features, save_path)
+        input_values = features["input_values"]
+        torch.save(input_values, save_path)
         feature_paths.append(save_path)
 
 
@@ -79,7 +80,7 @@ def save_and_update_csv(csv_file, output_csv = "torgo_features_paths.csv", outpu
 
 def main():
     csv_file = "torgo_features.csv" 
-    save_and_update_csv(csv_file)
+    saveUpdateCSV(csv_file)
 
 if __name__ == "__main__":
     main()
