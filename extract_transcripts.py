@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 
-df = pd.read_csv('torgo_features_paths.csv')
+df = pd.read_csv('torgo_features_paths_processed.csv')
 
 def normalize_transcript(file_path):
     try:
@@ -18,4 +18,4 @@ def normalize_transcript(file_path):
     return normalized
 
 df['transcipt'] = df['Prompts'].apply(normalize_transcript)
-df.to_csv('torgo_vectors_transcripts.csv', index=False)
+df.to_csv('torgo_vectors_transcripts_processed.csv', index=False)

@@ -31,7 +31,7 @@ def extractAudioFeatures(audio_path, extractor, model):
     
     return hidden_states
 
-def saveUpdateCSV(csv_file, output_csv="torgo_features_paths.csv", output_dir=r"E:\MLPR Data\Features"):
+def saveUpdateCSV(csv_file, output_csv="torgo_features_paths_processed.csv", output_dir=r"E:\MLPR Data\FeaturesProcessed"):
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
